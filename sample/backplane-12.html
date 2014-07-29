@@ -2,7 +2,7 @@
 <!--
 Livefyre setup:
 
-set Domain object json_config['janrain_capture'] = 
+set Domain object json_config['janrain_capture'] =
 {'base_url': 'https://livefyre.dev.janraincapture.com/',
  'client_id': '6xp58xr87t6twcddsjwjvz3t9pzhvcwa',
  'client_secret': 'datffkkt8h4q8d2vbgj9xpq6nzdn2m5h',
@@ -30,6 +30,11 @@ set Domain object json_config['janrain_capture'] =
         <script src="https://livefyre.dev.janraincapture.com/cdn/javascripts/capture_client.js"></script>
 
         <link rel="stylesheet" href="assets/capture-style.css">
+        <style type="text/css">
+            #login {
+                color: blue;
+            }
+        </style>
         <script>
           (function() {
               if (typeof window.CAPTURE !== 'object') window.CAPTURE = {};
@@ -41,12 +46,12 @@ set Domain object json_config['janrain_capture'] =
                   },
                   capture_ui_server_url: 'https://livefyre.dev.janraincapture.com',
                   capture_server_url: 'https://livefyre.dev.janraincapture.com', // e.g. https://demo.eval.janraincapture.com/
-                  redirect_uri: 'http://localhost:8090/sample/backplane/oauth-redirect.html',
+                  redirect_uri: 'http://localhost:8090/sample/oauth-redirect.html',
                   response_type: 'token',
                   client_id: '6xp58xr87t6twcddsjwjvz3t9pzhvcwa',
                   application_id: 'livefyre-dev',
-                  xd_receiver: 'http://localhost:8090/sample/backplane/xdcomm.html',
-                  age_limit_url: 'http://localhost:8090/sample/backplane/unable-to-login.html',
+                  xd_receiver: 'http://localhost:8090/sample/xdcomm.html',
+                  age_limit_url: 'http://localhost:8090/sample/unable-to-login.html',
                   // page event callbacks
                   callbacks: {
                       userSignedIn: function () {
@@ -156,6 +161,7 @@ set Domain object json_config['janrain_capture'] =
             document.getElementById('logout_link').onclick = function (event) {
                 CAPTURE.invalidateSession();
                 CAPTURE.util.delCookie('backplane-channel');
+                window.auth.logout();
                 document.location.reload();
                 return false;
             };
@@ -197,35 +203,31 @@ set Domain object json_config['janrain_capture'] =
           </div>
         </div>
 
-        <script src="../../lib/cajon/cajon.js"></script>
+        <a href="#" id="login"></a>
+        <div id="log"></div>
+
+        <script src="../../bower_components/cajon/cajon.js"></script>
         <script src="../../requirejs.conf.js"></script>
         <script>
+            require.config({
+                baseUrl: '../..',
+                packages: [{
+                    name: 'auth',
+                    location: 'bower_components/auth/src'
+                }]
+            });
             require([
-                'auth-delegates/delegates/backplane',
-                'auth-delegates/user'
-            ], function(Delegate, user) {
-                var loginEl = document.getElementById('signin_link'),
-                    logoutEl = document.getElementById('logout_link'),
-                    loggedInNav = document.getElementById('logged_in_nav');
-                //loggedInNav.style.display = 'none';
+                'livefyre-auth',
+                'backplane-auth-handler',
+                'auth/contrib/auth-button',
+                'auth/contrib/auth-log'
+            ], function(auth, backplaneHandler, AuthButton, AuthLog) {
 
-                user.on('change', function(attributes) {
-                    console.log('User changed!!!!');
-                });
+                window.auth = auth;
+                backplaneHandler(auth, 'http://www.fy.re', 'NjkzOTg4LjQzNzUzMTUxNg==', '286470');
 
-                user.on('login', function() {
-                    loginEl.style.display = 'none';
-                    loggedInNav.style.display = 'inline';
-                });
-
-                user.on('logout', function() {
-                    loginEl.style.display = 'inline';
-                    loggedInNav.style.display = 'none';
-                });
-
-                // Backplane delegate
-                var authDelegate = new Delegate('NjkzOTg4LjQzNzUzMTUxNg==', '286470',
-                  'http://www.fyre');
+                // make a delegate
+                var authDelegate = {};
 
                 /**
                  * Login function
@@ -247,7 +249,6 @@ set Domain object json_config['janrain_capture'] =
                     CAPTURE.invalidateSession();
                     CAPTURE.util.delCookie('backplane-channel');
                     Backplane.resetCookieChannel();
-                    user.logout();
                 };
 
                 /**
@@ -268,17 +269,12 @@ set Domain object json_config['janrain_capture'] =
                     console.log(author);
                 };
 
-                loginEl.onclick = function(ev) {
-                    ev.preventDefault();
-                    authDelegate.login();
-                };
-                logoutEl.onclick = function(ev) {
-                    ev.preventDefault();
-                    authDelegate.logout();
-                };
-          });
+                auth.delegate(authDelegate);
 
-          
+                window.Auth = auth;
+                window.AuthButton = new AuthButton(auth, document.getElementById('login'));
+                window.AuthLog = new AuthLog(auth, document.getElementById('log'));
+          });
         </script>
     </body>
 </html>

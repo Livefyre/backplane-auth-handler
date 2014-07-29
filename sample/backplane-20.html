@@ -169,7 +169,9 @@ set Domain object json_config['janrain_capture'] =
           <!-- ATTACH PROFILE LAUNCHER -->
           <script>
             document.getElementById('logout_link').onclick = function (event) {
+                Backplane.resetCookieChannel();
                 CAPTURE.invalidateSession();
+                CAPTURE.util.delCookie('backplane-channel');
                 window.auth.logout();
                 return false;
             };
@@ -184,7 +186,11 @@ set Domain object json_config['janrain_capture'] =
         <script src="../../requirejs.conf.js"></script>
         <script>
             require.config({
-                baseUrl: '../..'
+                baseUrl: '../..',
+                packages: [{
+                    name: 'auth',
+                    location: 'bower_components/auth/src'
+                }]
             });
             require([
                 'livefyre-auth',
