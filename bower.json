@@ -1,0 +1,25 @@
+{
+  "name": "backplane-auth-handler",
+  "version": "0.0.0",
+  "authors": [
+    "JJ Weber <jjweber@gmail.com>"
+  ],
+  "description": "Livefyre.requirable backplane auth delegate",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "auth-delegate-livefyre": "Livefyre/auth-delegates#~0.3.6",
+    "cajon": "~0.2.4",
+    "auth": "Livefyre/auth#~0.2.1",
+    "livefyre-auth": "Livefyre/livefyre-auth#~0.5.4",
+    "almond": "~0.2.9"
+  }
+}
