@@ -106,7 +106,7 @@ function setSubscriptionByVersion(backplane, handleMessage) {
 
 /**
  * @param {Auth} auth
- * @param {string} serverUrl
+ * @param {string=} serverUrl
  * @param {string=} opt_articleId
  * @param {string=} opt_siteId
  * @constructor
