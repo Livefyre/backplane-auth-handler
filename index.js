@@ -109,7 +109,6 @@ function setSubscriptionByVersion(backplane, handleMessage) {
  * @param {string=} serverUrl
  * @param {string=} opt_articleId
  * @param {string=} opt_siteId
- * @constructor
  */
 function backplaneHandler(auth, serverUrl, articleId, siteId) {
     if (!window.Backplane) {
