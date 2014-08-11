@@ -194,12 +194,13 @@ set Domain object json_config['janrain_capture'] =
             });
             require([
                 'livefyre-auth',
-                'backplane-auth-handler',
+                'backplane-auth-plugin',
                 'auth/contrib/auth-button',
                 'auth/contrib/auth-log'
             ], function(auth, bpHandler, AuthButton, AuthLog) {
 
                 window.auth = auth;
+                // TODO: works
                 bpHandler(auth, 'http://www.fy.re', 'NjkzOTg4LjQzNzUzMTUxNg==', '286470');
 
                 // make a delegate

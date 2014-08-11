@@ -13,7 +13,7 @@ require.config({
     name: 'livefyre-auth',
     location: 'bower_components/livefyre-auth/src'
   },{
-    name: 'backplane-auth-handler',
+    name: 'backplane-auth-plugin',
     location: '.',
     main: 'index'
   }]
