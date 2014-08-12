@@ -107,7 +107,7 @@ function setSubscriptionByVersion(backplane, handleMessage) {
  */
 function backplanePluginFactory(network) {
     if (!network) {
-        throw 'missing network information';
+        throw 'missing network parameter';
     }
     /**
      * @param {Auth} auth

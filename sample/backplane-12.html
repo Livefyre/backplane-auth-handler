@@ -221,11 +221,9 @@ set Domain object json_config['janrain_capture'] =
                 'backplane-auth-plugin',
                 'auth/contrib/auth-button',
                 'auth/contrib/auth-log'
-            ], function(auth, backplaneHandler, AuthButton, AuthLog) {
+            ], function(auth, backplanePluginFactory, AuthButton, AuthLog) {
 
-                window.auth = auth;
-                // TODO: works
-                backplaneHandler(auth);
+                auth.plugin(backplanePluginFactory('labs-t402.fyre.co'));
 
                 // make a delegate
                 var authDelegate = {};
@@ -235,9 +233,15 @@ set Domain object json_config['janrain_capture'] =
                  * In this case, opens a login modal and triggers Backplane to start listening
                  * for login messages
                  */
-                authDelegate.login = function(delegate) {
+                authDelegate.login = function(cb) {
+                    function callback () {
+                        janrain.events.onModalClose.removeHandler(callback);
+                        cb();
+                    };
+
                     CAPTURE.startModalLogin();
                     window.Backplane.expectMessages('identity/login');
+                    janrain.events.onModalClose.addHandler(callback);
                 };
 
                 /**
@@ -246,10 +250,11 @@ set Domain object json_config['janrain_capture'] =
                  * Also reloads the page to change state. In order to do this without a reload,
                  * it would be necessary to also update the UI.
                  */
-                authDelegate.logout = function(delegate) {
+                authDelegate.logout = function(cb) {
                     CAPTURE.invalidateSession();
                     CAPTURE.util.delCookie('backplane-channel');
                     Backplane.resetCookieChannel();
+                    cb();
                 };
 
                 /**
@@ -272,7 +277,7 @@ set Domain object json_config['janrain_capture'] =
 
                 auth.delegate(authDelegate);
 
-                window.Auth = auth;
+                window.auth = auth;
                 window.AuthButton = new AuthButton(auth, document.getElementById('login'));
                 window.AuthLog = new AuthLog(auth, document.getElementById('log'));
           });

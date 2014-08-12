@@ -9,8 +9,7 @@
     <body>
         <script type="text/javascript" src="http://d134l0cdryxgwa.cloudfront.net/backplane.js" ></script>
         <script src="https://livefyre.dev.janraincapture.com/cdn/javascripts/capture_client.js"></script>
-        <!-- <script src="http://zor.t402.livefyre.com/wjs/v3.0/javascripts/livefyre.js"></script> -->
-        <script src="http://widget.fyre/compile?id=lfconv"></script>
+        <script src="http://zor.t402.livefyre.com/wjs/v3.0/javascripts/livefyre.js"></script>
         <link rel="stylesheet" href="assets/capture-style.css">
 
         <!-- INIT SERVICES -->
@@ -178,11 +177,10 @@
         ], function(auth, backplanePluginFactory, AuthButton, AuthLog) {
 
             window.auth = auth;
-            var backplanePlugin = backplanePluginFactory('labs-t402.fyre.co');
-            backplanePlugin(auth);
+            auth.plugin(backplanePluginFactory('labs-t402.fyre.co'));
             window.Livefyre = {};
             Livefyre.require = function (deps, cb) {
-              cb(auth);
+                cb(auth);
             }
 
             // make a delegate
@@ -201,22 +199,14 @@
              * for login messages
              */
             authDelegate.login = function(cb) {
-                var successCallback = function() {
+                function callback () {
+                    janrain.events.onModalClose.removeHandler(callback);
                     cb();
-                    janrain.events.onCaptureLoginSuccess.removeHandler(successCallback);
-                    janrain.events.onModalClose.removeHandler(failureCallback);
-                };
-
-                var failureCallback = function() {
-                    cb(new Error());
-                    janrain.events.onModalClose.removeHandler(failureCallback);
-                    janrain.events.onCaptureLoginSuccess.removeHandler(successCallback);
                 };
 
                 CAPTURE.startModalLogin();
                 window.Backplane.expectMessages('identity/login');
-                janrain.events.onCaptureLoginSuccess.addHandler(successCallback);
-                janrain.events.onModalClose.addHandler(failureCallback);
+                janrain.events.onModalClose.addHandler(callback);
             };
 
             /**
@@ -231,6 +221,7 @@
                 Backplane.resetCookieChannel();
                 cb();
             };
+
 
             /**
              * View profile function

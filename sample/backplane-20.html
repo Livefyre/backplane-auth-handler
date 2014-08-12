@@ -197,11 +197,9 @@ set Domain object json_config['janrain_capture'] =
                 'backplane-auth-plugin',
                 'auth/contrib/auth-button',
                 'auth/contrib/auth-log'
-            ], function(auth, bpHandler, AuthButton, AuthLog) {
+            ], function(auth, backplanePluginFactory, AuthButton, AuthLog) {
 
-                window.auth = auth;
-                // TODO: works
-                bpHandler(auth, 'http://www.fy.re', 'NjkzOTg4LjQzNzUzMTUxNg==', '286470');
+                auth.plugin(backplanePluginFactory('labs-t402.fyre.co'));
 
                 // make a delegate
                 var authDelegate = {};
@@ -211,10 +209,15 @@ set Domain object json_config['janrain_capture'] =
                  * In this case, opens a login modal and triggers Backplane to start listening
                  * for login messages
                  */
-                authDelegate.login = function(callback) {
+                authDelegate.login = function(cb) {
+                    function callback () {
+                        janrain.events.onModalClose.removeHandler(callback);
+                        cb();
+                    };
+
                     CAPTURE.startModalLogin();
                     window.Backplane.expectMessages('identity/login');
-                    callback();
+                    janrain.events.onModalClose.addHandler(callback);
                 };
 
                 /**
@@ -223,10 +226,11 @@ set Domain object json_config['janrain_capture'] =
                  * Also reloads the page to change state. In order to do this without a reload,
                  * it would be necessary to also update the UI.
                  */
-                authDelegate.logout = function(callback) {
+                authDelegate.logout = function(cb) {
                     CAPTURE.invalidateSession();
                     CAPTURE.util.delCookie('backplane-channel');
-                    callback();
+                    Backplane.resetCookieChannel();
+                    cb();
                 };
 
                 /**
