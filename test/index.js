@@ -20,7 +20,7 @@ requirejs.config({
         name: 'livefyre-auth',
         location: 'amd/livefyre-auth/src'
     },{
-        name: 'backplane-auth-handler',
+        name: 'backplane-auth-plugin',
         location: 'amd',
         main: 'index'
     }]
@@ -37,7 +37,7 @@ global.document = {
 window.Backplane = function() {};
 window.Backplane.version = "2.0.6";
 
-var bpHandler = requirejs('backplane-auth-handler');
+var bpHandler = requirejs('backplane-auth-plugin');
 
 test('\n is a function', function(t) {
     t.ok(typeof bpHandler === 'function');

@@ -1,6 +1,6 @@
 ({
     mainConfigFile: './requirejs.conf.js',
-    name: 'backplane-auth-handler',
+    name: 'backplane-auth-plugin',
     out: './dist/index.min.js',
     optimize: 'uglify2',
     paths: {

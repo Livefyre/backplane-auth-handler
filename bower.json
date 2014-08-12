@@ -1,6 +1,6 @@
 {
-  "name": "backplane-auth-handler",
-  "version": "0.0.0",
+  "name": "backplane-auth-plugin",
+  "version": "0.1.0",
   "authors": [
     "JJ Weber <jjweber@gmail.com>"
   ],
@@ -18,8 +18,11 @@
   "devDependencies": {
     "auth-delegate-livefyre": "Livefyre/auth-delegates#~0.3.6",
     "cajon": "~0.2.4",
-    "auth": "Livefyre/auth#~0.2.1",
-    "livefyre-auth": "Livefyre/livefyre-auth#~0.5.4",
+    "auth": "Livefyre/auth#^0.4.0",
+    "livefyre-auth": "Livefyre/livefyre-auth#^0.8.0",
     "almond": "~0.2.9"
+  },
+  "resolutions": {
+    "auth": "^0.4.0"
   }
 }

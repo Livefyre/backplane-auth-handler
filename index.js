@@ -2,9 +2,8 @@
  * @fileoverview Backplane auth delegate. Note the differences in implementation between 1.2 and 2.0
  * versions of Backplane.
  */
-var auth = require('auth');
 var bind = require('mout/function/bind');
-var jsonp = require('backplane-auth-handler/util/jsonp');
+var jsonp = require('backplane-auth-plugin/util/jsonp');
 
 var BP_MSG_TYPES = {
     LOGIN: 'identity/login',
@@ -33,7 +32,6 @@ function extractLastMessage(messages) {
     }
     return null;
 }
-
 
 /**
  * Backplane 1.2 logic.
@@ -105,32 +103,27 @@ function setSubscriptionByVersion(backplane, handleMessage) {
 }
 
 /**
- * @param {Auth} auth
- * @param {string=} serverUrl
- * @param {string=} opt_articleId
- * @param {string=} opt_siteId
+ * @param {string} network
  */
-function backplaneHandler(auth, serverUrl, articleId, siteId) {
-    if (!window.Backplane) {
-        throw 'missing global backplane instance';
+function backplanePluginFactory(network) {
+    if (!network) {
+        throw 'missing network parameter';
     }
+    /**
+     * @param {Auth} auth
+     */
+    return function backplanePlugin(auth) {
+        var bp = window.Backplane;
+        if (!bp) {
+            throw 'missing global backplane instance';
+        }
 
-    this.articleId = articleId;
-    this.siteId = siteId;
-    this.serverUrl = serverUrl;
+        function callback() {
+            setSubscriptionByVersion(bp, bind(handleBackplaneMessage, this, auth, network));
+        }
 
-    // only call init once
-    var bp = window.Backplane;
-    var self = this;
-    var initOnce = false;
-    var callback = function() {
-        setSubscriptionByVersion(bp, handleBackplaneMessage);
-        initOnce = true;
-    };
-
-    bp(function() {
-        initOnce || callback();
-    });
+        bp(callback);
+    }
 }
 
 // function pollForChannelChange (backplane, currentBPChannel) {
@@ -160,25 +153,27 @@ function backplaneHandler(auth, serverUrl, articleId, siteId) {
  * Based on message type, takes a certain action.
  * @param {Object} message
  */
-function handleBackplaneMessage (message) {
+function handleBackplaneMessage (auth, network, message) {
     var messageType = message['type'];
     switch (messageType) {
         case BP_MSG_TYPES.LOGIN:
+            // if there is already a user then don't authenticate again
+            if (auth.get('livefyre')) {
+                return;
+            }
             auth.authenticate({
                 livefyre: {
-                    siteId: this.siteId,
-                    articleId: this.articleId,
-                    serverUrl: this.serverUrl,
-                    bpChannel: message['channel']
+                    bpChannel: message['channel'] ||  window.Backplane.getChannelID(),
+                    network: network
                 }
             });
             break;
         case BP_MSG_TYPES.LOGOUT:
-            auth.logout();
+            auth.emit('logout');
             break;
         default:
             throw 'This Backplane message type is not supported: ' + messageType;
     }
-};
+}
 
-module.exports = backplaneHandler;
+module.exports = backplanePluginFactory;

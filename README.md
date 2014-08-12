@@ -1,4 +1,4 @@
-backplane-auth-handler
+backplane-auth-plugin
 ======================
 
 Livefyre.requireable backplane auth handler
@@ -8,16 +8,10 @@ Livefyre.requireable backplane auth handler
 The backplane authentication handler will handle Backplane login and logout events, but it does not provide a fully functional auth delegate.
 
 ```
-Livefyre.require(['auth', 'backplane-auth-handler#0', 'auth-contrib#0.0.0-pre'], function(auth, backplaneHandler, authContrib) {
+Livefyre.require(['auth', 'backplane-auth-plugin#0', 'auth-contrib#0.0.0-pre'], function(auth, bpPluginFactory, authContrib) {
 
-                /**
-                 * Handle backplane login and logout (if applicable) events.
-                 * @param {Auth} auth an instance of auth
-                 * @param {string} serverUrl The authentication url
-                 * @param {string=} opt_articleId Optional collection articleId
-                 * @param {string=} opt_siteId Optional collection siteId
-                 */   
-                backplaneHandler(auth, 'http://www.fy.re', 'NjkzOTg4LjQzNzUzMTUxNg==', '286470');
+                var bpPlugin = bpPluginFactory('livefyre.com');
+                bpPlugin(auth); // or auth.plugin(bpPlugin);
 
                 // make a delegate
                 var authDelegate = {};

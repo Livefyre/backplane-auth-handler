@@ -1,40 +1,22 @@
 <!DOCTYPE html>
-<!--
-Livefyre setup:
-
-set Domain object json_config['janrain_capture'] =
-{'base_url': 'https://livefyre.dev.janraincapture.com/',
- 'client_id': '6xp58xr87t6twcddsjwjvz3t9pzhvcwa',
- 'client_secret': 'datffkkt8h4q8d2vbgj9xpq6nzdn2m5h',
- 'enable_push_updates': True,
- 'identity_url': 'https://livefyre.dev.janraincapture.com/',
- 'schema_mapping': {'bio': 'aboutMe',
-                    'connections': 'profiles',
-                    'display_name': 'displayName',
-                    'email': 'email',
-                    'id': 'uuid',
-                    'image_url': 'photos',
-                    'location': 'currentLocation'},
- 'user_type': 'user'}
-
--->
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>Backplane 1.2 w/ Janrain Capture Demo</title>
+        <title>Static File Janrain Capture Demo</title>
         <script src="assets/capture.js"></script>
     </head>
 
     <body>
-        <script src="http://d134l0cdryxgwa.cloudfront.net/backplane.js" ></script>
+        <script type="text/javascript" src="http://d134l0cdryxgwa.cloudfront.net/backplane.js" ></script>
         <script src="https://livefyre.dev.janraincapture.com/cdn/javascripts/capture_client.js"></script>
-
+        <script src="http://zor.t402.livefyre.com/wjs/v3.0/javascripts/livefyre.js"></script>
         <link rel="stylesheet" href="assets/capture-style.css">
-        <style type="text/css">
-            #login {
-                color: blue;
-            }
-        </style>
+
+        <!-- INIT SERVICES -->
+
+         <!-- replace HTTP-YOURDOMAIN with http://yourdomain... -->
+        <!-- replace HTTPS-YOURCAPTUREEVAL with http://yourdemo.eval.janraincapture.com/... -->
+        <!-- replace CLIENT-ID with your client id-->
         <script>
           (function() {
               if (typeof window.CAPTURE !== 'object') window.CAPTURE = {};
@@ -46,19 +28,19 @@ set Domain object json_config['janrain_capture'] =
                   },
                   capture_ui_server_url: 'https://livefyre.dev.janraincapture.com',
                   capture_server_url: 'https://livefyre.dev.janraincapture.com', // e.g. https://demo.eval.janraincapture.com/
-                  redirect_uri: 'http://localhost:8090/sample/oauth-redirect.html',
+                  redirect_uri: 'http://orangesaregreat.com/backplane/oauth_redirect.html',
                   response_type: 'token',
                   client_id: '6xp58xr87t6twcddsjwjvz3t9pzhvcwa',
                   application_id: 'livefyre-dev',
-                  xd_receiver: 'http://localhost:8090/sample/xdcomm.html',
-                  age_limit_url: 'http://localhost:8090/sample/unable-to-login.html',
+                  xd_receiver: 'http://orangesaregreat.com/backplane/xdcomm.html',
+                  age_limit_url: 'http://orangesaregreat.com/backplane/unable_to_login.html',
                   // page event callbacks
                   callbacks: {
                       userSignedIn: function () {
                           var signin = document.getElementById('signin_link')
                           if (signin){ signin.className = 'hidden'; }
                           var loggedInNav = document.getElementById('logged_in_nav');
-                          loggedInNav.className = '';
+                          if (loggedInNav) { loggedInNav.className = ''; }
                           var messageDiv = document.getElementById('message');
                           if (messageDiv){
                               var message = CAPTURE.util.getCookie('staticMessage');
@@ -126,51 +108,24 @@ set Domain object json_config['janrain_capture'] =
                               CAPTURE.emailVerified();
                           }
                       }
+
                   }
               };
           })();
 
         Backplane(CAPTURE.init);
         Backplane.init({
-            serverBaseURL: 'https://backplane1.janrainbackplane.com/v1.2',
+            serverBaseURL: 'http://backplane1.janrainbackplane.com/v1.2',
             busName: 'livefyre-dev'
         });
 
         </script>
 
         <div id="navigation">
-          <a id="signin_link" href="">Register / Sign In</a>
-
-          <!-- ATTACH SIGNIN LAUNCHER -->
-          <script>
-            document.getElementById('signin_link').onclick = function (event) {
-                CAPTURE.startModalLogin();
-                Backplane.expectMessages('identity/login');
-                return false;
-            };
-          </script>
-
-        <div id="logged_in_nav" class="hidden">
-            <a id="public_profile_link" href="./public_profile.html">View your profile</a> |
-            <a id="profile_link" href="./profile.html">Edit your profile</a> |
-            <a id="logout_link" href="">Logout</a>
-        </div>
-
-          <!-- ATTACH PROFILE LAUNCHER -->
-          <script>
-            document.getElementById('logout_link').onclick = function (event) {
-                CAPTURE.invalidateSession();
-                CAPTURE.util.delCookie('backplane-channel');
-                window.auth.logout();
-                document.location.reload();
-                return false;
-            };
-          </script>
-          <br/>
-        </div>
-
+    Backplane 1.2 / Livefyre Test Page
+    </div>
         <div id="page">
-          <div class="content" id="page_content">
+         <!-- <div class="content" id="page_content">
             <h1 id="title"></h1>
             <div id="message" style="color:blue; padding:20px; display:none"></div>
             <ul class="lipsum">
@@ -200,88 +155,104 @@ set Domain object json_config['janrain_capture'] =
               </li>
             </ul>
             <div class="clear" style="padding:20px 0"></div>
-          </div>
+          </div> -->
         </div>
+        <div id="livefyre"></div>
 
-        <a href="#" id="login"></a>
-        <div id="log"></div>
-
-        <script src="../../bower_components/cajon/cajon.js"></script>
-        <script src="../../requirejs.conf.js"></script>
         <script>
-            require.config({
-                baseUrl: '../..',
-                packages: [{
-                    name: 'auth',
-                    location: 'bower_components/auth/src'
-                }]
+            /**
+             * New auth delegate through Backplane
+             * As stated above, in order for this to run on other environments,
+             * changes need to be made:
+             *  - a new custom domain
+             *  - a dns entry for the custom domain
+             */
+
+            // Takes an instance of the Backplane global object
+            var authDelegate = new fyre.conv.BackplaneAuthDelegate(window.Backplane);
+
+            /**
+             * Login function
+             * In this case, opens a login modal and triggers Backplane to start listening
+             * for login messages
+             */
+            authDelegate.login = function(delegate) {
+                var successCallback = function() {
+                    delegate.success();
+                    janrain.events.onCaptureLoginSuccess.removeHandler(successCallback);
+                    janrain.events.onModalClose.removeHandler(failureCallback);
+                };
+
+                var failureCallback = function() {
+                    delegate.failure();
+                    janrain.events.onModalClose.removeHandler(failureCallback);
+                    janrain.events.onCaptureLoginSuccess.removeHandler(successCallback);
+                };
+
+                CAPTURE.startModalLogin();
+                window.Backplane.expectMessages('identity/login');
+                janrain.events.onCaptureLoginSuccess.addHandler(successCallback);
+                janrain.events.onModalClose.addHandler(failureCallback);
+            };
+
+            authDelegate.fetchAuthData = function(delegate) {
+              var isUserVerified = true;
+              if (isUserVerified) {
+                delegate.base(function() {console.log('login success!!!');});
+              }
+            };
+
+            /**
+             * Logout function
+             * In this case, invalidates the session and removes the cookie.
+             * Also reloads the page to change state. In order to do this without a reload,
+             * it would be necessary to also update the UI.
+             */
+            authDelegate.logout = function(delegate) {
+                CAPTURE.invalidateSession();
+                CAPTURE.util.delCookie('backplane-channel');
+                Backplane.resetCookieChannel();
+                fyre.conv.BackplaneAuthDelegate.prototype.logout.call(this, delegate);
+            };
+
+            /**
+             * View profile function
+             * Arguments are delegate parameter and an author parameter
+             * Used any time a view profile event is triggered
+             */
+            authDelegate.viewProfile = function(delegate, author) {
+                console.log(author);
+            };
+
+            /**
+             * Edit profile function
+             * Arguments are delegate parameter and an author parameter
+             * Used any time an edit profile event is triggered
+             */
+            authDelegate.editProfile = function(delegate, author) {
+                console.log(author);
+            };
+
+            /**
+             * Initializing the conversation
+             * In the Backplane case, only a couple modifications are necessary:
+             *  - Add a network
+             *  - Add the authDelegate (in this case, the Backplane version)
+             * Note: In the production version, conversation meta should be used,
+             * with checksum, etc. For dev, the below is fine.
+             */
+            var lf_config = {
+                'app': 'main',
+                'articleId': 'public-0',
+                'el': 'livefyre',
+                'siteId': '303778'
+            }
+
+            fyre.conv.load({
+                network: 'labs-t402.fyre.co',
+                authDelegate: authDelegate
+            }, [lf_config], function(app) {
             });
-            require([
-                'livefyre-auth',
-                'backplane-auth-plugin',
-                'auth/contrib/auth-button',
-                'auth/contrib/auth-log'
-            ], function(auth, backplanePluginFactory, AuthButton, AuthLog) {
-
-                auth.plugin(backplanePluginFactory('labs-t402.fyre.co'));
-
-                // make a delegate
-                var authDelegate = {};
-
-                /**
-                 * Login function
-                 * In this case, opens a login modal and triggers Backplane to start listening
-                 * for login messages
-                 */
-                authDelegate.login = function(cb) {
-                    function callback () {
-                        janrain.events.onModalClose.removeHandler(callback);
-                        cb();
-                    };
-
-                    CAPTURE.startModalLogin();
-                    window.Backplane.expectMessages('identity/login');
-                    janrain.events.onModalClose.addHandler(callback);
-                };
-
-                /**
-                 * Logout function
-                 * In this case, invalidates the session and removes the cookie.
-                 * Also reloads the page to change state. In order to do this without a reload,
-                 * it would be necessary to also update the UI.
-                 */
-                authDelegate.logout = function(cb) {
-                    CAPTURE.invalidateSession();
-                    CAPTURE.util.delCookie('backplane-channel');
-                    Backplane.resetCookieChannel();
-                    cb();
-                };
-
-                /**
-                 * View profile function
-                 * Arguments are delegate parameter and an author parameter
-                 * Used any time a view profile event is triggered
-                 */
-                authDelegate.viewProfile = function(delegate, author) {
-                    console.log(author);
-                };
-
-                /**
-                 * Edit profile function
-                 * Arguments are delegate parameter and an author parameter
-                 * Used any time an edit profile event is triggered
-                 */
-                authDelegate.editProfile = function(delegate, author) {
-                    console.log(author);
-                };
-
-                auth.delegate(authDelegate);
-
-                window.auth = auth;
-                window.AuthButton = new AuthButton(auth, document.getElementById('login'));
-                window.AuthLog = new AuthLog(auth, document.getElementById('log'));
-          });
         </script>
     </body>
 </html>
-
