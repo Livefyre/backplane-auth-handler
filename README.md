@@ -8,10 +8,10 @@ Livefyre.requireable backplane auth handler
 The backplane authentication handler will handle Backplane login and logout events, but it does not provide a fully functional auth delegate.
 
 ```
-Livefyre.require(['auth', 'backplane-auth-plugin#0', 'auth-contrib#0.0.0-pre'], function(auth, bpPluginFactory, authContrib) {
+Livefyre.require(['auth', 'backplane-auth-plugin#0', 'auth-contrib#0.0.0-pre'], function(auth, livefyreBackplane, authContrib) {
 
-                var bpPlugin = bpPluginFactory('livefyre.com');
-                bpPlugin(auth); // or auth.plugin(bpPlugin);
+                // Create a plugin with a network and pass it to auth
+                auth.plugin(livefyreBackplane('livefyre.com'));
 
                 // make a delegate
                 var authDelegate = {};
