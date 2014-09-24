@@ -21,5 +21,8 @@
     "auth": "Livefyre/auth#^0.4.0",
     "livefyre-auth": "Livefyre/livefyre-auth#^0.8.0",
     "almond": "~0.2.9"
+  },
+  "resolutions": {
+    "auth": "^0.4.0"
   }
 }
